@@ -1,6 +1,24 @@
 import java.util.*;
 
 public final class ImmutableStack<E> implements ImmutableCollection<E> {
+
+    private final class ImmutableStackIterator<E> implements Iterator<E> {
+        private ImmutableStack<E> collection;
+        private ImmutableStackIterator(ImmutableStack<E> c) {
+            collection = c;
+        }
+        public boolean hasNext() {
+            return ! collection.isEmpty();
+        }
+        public E next() {
+            E e = collection.peek();
+            collection = collection.pop();
+            return e;
+        }
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
+    }
     private final ImmutableStack<E> tail;
     private final E data;
     private final int length;
@@ -13,6 +31,13 @@ public final class ImmutableStack<E> implements ImmutableCollection<E> {
         tail = new ImmutableStack<E>();
         data = initial;
         length = 1;
+    }
+    public ImmutableStack (Iterable<? extends E> initial) {
+        ImmutableStack<E> tmp = new ImmutableStack<E>();
+        tmp = tmp.addAll(initial);
+        data = tmp.peek();
+        length = tmp.length;
+        tail = tmp.pop();
     }
     private ImmutableStack (ImmutableStack<E> c, E e) {
         tail = c;
@@ -56,7 +81,27 @@ public final class ImmutableStack<E> implements ImmutableCollection<E> {
     public int size() {
         return length;
     }
+
     public Iterator<E> iterator() {
-        return null;
+        return new ImmutableStackIterator<E>(this);
     }
+    public Object[] toArray() {
+        return toArray(new Object[length]);
+    }
+
+    //This is annoying, but I can't constrain T to be a supertype of E due to
+    //  the way Java's generics work.
+    @SuppressWarnings("unchecked") 
+    public <T> T[] toArray(T[] a) {
+        if (a.length < length) {
+            a = (T[]) java.lang.reflect.Array.newInstance(a.getClass().getComponentType(), length);
+        }
+        int i = 0;
+        for (E e : this) {
+            a[i] = (T) e;
+            i += 1;
+        }
+        return a;
+    }
+
 }
