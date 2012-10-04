@@ -1,5 +1,7 @@
 import java.util.*;
 
+//Based off of Eric Lippert's C# Immutable Queue
+// http://blogs.msdn.com/b/ericlippert/archive/2007/12/10/immutability-in-c-part-four-an-immutable-queue.aspx
 public final class ImmutableStack<E> implements ImmutableCollection<E> {
 
     private final class ImmutableStackIterator<E> implements Iterator<E> {
