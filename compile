@@ -1,0 +1,13 @@
+#!/bin/bash
+
+function getTests() {
+    ls *Test.java| while read i; do
+        echo -n "`basename $i .java` ";
+
+    done
+}
+export CLASSPATH=junit-4.10.jar:$CLASSPATH
+
+rm *.class
+javac *.java && java org.junit.runner.JUnitCore `getTests`
+
