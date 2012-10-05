@@ -134,4 +134,57 @@ public class ImmutableQueueTest {
             q = q.popLeft();
         }
     }
+
+    @Test
+    public void IteratorWorksForSmallQueue () {
+        ImmutableQueue<Integer> q = new ImmutableQueue<Integer>();
+        int limit = 4;
+        for (int i = 0; i < limit; i += 1) {
+            q.push(i);
+        }
+        int expected = 0;
+        for (int actual: q) {
+            Assert.assertEquals(expected, actual);
+            expected += 1;
+        }
+    }
+    @Test
+    public void IteratorWorksForMediumQueue () {
+        ImmutableQueue<Integer> q = new ImmutableQueue<Integer>();
+        int limit = 24;
+        for (int i = 0; i < limit; i += 1) {
+            q.push(i);
+        }
+        int expected = 0;
+        for (int actual: q) {
+            Assert.assertEquals(expected, actual);
+            expected += 1;
+        }
+    }
+    @Test
+    public void IteratorWorksForLargeQueue () {
+        ImmutableQueue<Integer> q = new ImmutableQueue<Integer>();
+        int limit = 255;
+        for (int i = 0; i < limit; i += 1) {
+            q.push(i);
+        }
+        int expected = 0;
+        for (int actual: q) {
+            Assert.assertEquals(expected, actual);
+            expected += 1;
+        }
+    }
+    @Test
+    public void IteratorWorksForHugeQueue () {
+        ImmutableQueue<Integer> q = new ImmutableQueue<Integer>();
+        int limit = 1000000;
+        for (int i = 0; i < limit; i += 1) {
+            q.push(i);
+        }
+        int expected = 0;
+        for (int actual: q) {
+            Assert.assertEquals(expected, actual);
+            expected += 1;
+        }
+    }
 }

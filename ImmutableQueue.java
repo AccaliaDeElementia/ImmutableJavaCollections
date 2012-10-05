@@ -1,13 +1,37 @@
 import java.util.*;
 
+/**
+* An implementation of an Immutable Queue
+*
+* @author Accalia de Elementia <accalia.de.elementia@gmail.com>
+*
+* @version 0.5.0
+*/
 public final class ImmutableQueue<E> implements ImmutableCollection<E> {
 
     private final Quelette<E> right;
     private final ImmutableQueue<Quelette<E>> mid;
     private final Quelette<E> left;
+
+    /**
+    * The size of the queue.
+    *
+    * @since 0.5.0
+    */
     public final int length;
+
+    /**
+    * True if queue contains no data, false otherwise.
+    * 
+    * @since 0.5.0
+    */
     public final boolean empty;
 
+    /**
+    * Create a new, empty, ImmutableQueue.
+    * 
+    * @since 0.5.0
+    */
     public ImmutableQueue () {
         right = new Zero();
         mid = null;
@@ -15,7 +39,21 @@ public final class ImmutableQueue<E> implements ImmutableCollection<E> {
         length = 0;
         empty = true;
     }
+
+    /**
+    * Create a new ImmutableQueue with data.
+    *
+    * *PRIVATE* constructor.
+    *
+    * @param right The right Quelette
+    * @param mid The middle ImmutableQueue of Quelettes
+    * @param left The left Quelette
+    * @param length The size of the queue
+    *
+    * @since 0.5.0
+    */
     private ImmutableQueue (Quelette<E> right, ImmutableQueue<Quelette<E>> mid, Quelette<E> left, int length) {
+        //TODO: Get better way of determining size of the queue
         this.right = right;
         this.mid = mid;
         this.left = left;
@@ -23,16 +61,39 @@ public final class ImmutableQueue<E> implements ImmutableCollection<E> {
         empty = false;
     }
 
+    /**
+    * Returns the size of the queue.
+    *
+    * @see #length
+    *
+    * @since 0.5.0
+    */
     public int size() { return length; }
     
+    /**
+    * Returns true if the queue contains no data, false otherwise.
+    *
+    * @see #empty
+    * 
+    * @since 0.5.0
+    */
     public boolean isEmpty() { return empty; }
 
+    /**
+    * Push a data value to the right end of the queue.
+    *
+    * @param e Data value to push
+    * @return A new ImmutableQueue with updated state
+    *
+    * @since 0.1.0
+    */
     public ImmutableQueue<E> pushRight(E e) {
         Quelette<E> right = this.right;
         ImmutableQueue<Quelette<E>> mid = this.mid;
         Quelette<E> lleft = this.left;
         if (right.isFull()) {
             if (null == mid) {
+                //TODO: make sure that the left side is also full before pushing down into the mid
                 mid = new ImmutableQueue<Quelette<E>>();
             }
             mid = mid.pushRight(right);
@@ -43,6 +104,14 @@ public final class ImmutableQueue<E> implements ImmutableCollection<E> {
         return new ImmutableQueue<E>(right, mid, left, length + 1);
     }
 
+    /**
+    * Push a data value to the left end of the queue.
+    *
+    * @param e Data value to push
+    * @return A new ImmutableQueue with updated state
+    *
+    * @since 0.1.0
+    */
     public ImmutableQueue<E> pushLeft(E e) {
         Quelette<E> right = this.right;
         ImmutableQueue<Quelette<E>> mid = this.mid;
@@ -59,6 +128,38 @@ public final class ImmutableQueue<E> implements ImmutableCollection<E> {
         return new ImmutableQueue<E>(right, mid, left, length + 1);
     }
 
+    /**
+    * Alias for pushLeft
+    *
+    * @param e Data value to push
+    * @return A new ImmutableQueue with updated state
+    *
+    * @see #pushLeft
+    *
+    * @since 0.5.0
+    */
+    public ImmutableQueue<E> push(E e) { return pushLeft(e); }
+
+    /**
+    * Alias for pushLeft
+    *
+    * @param e Data value to push
+    * @return A new ImmutableQueue with updated state
+    *
+    * @see #pushLeft
+    *
+    * @since 0.5.0
+    */
+    public ImmutableQueue<E> add(E e) { return pushLeft(e); }
+
+    /**
+    * Look at the first element on the right.
+    *
+    * @return The rightmost data value
+    * @throws EmptyQueueException if there is no data stored
+    *
+    * @since 0.2.0
+    */
     public E peekRight() {
         if (empty) {
             throw new EmptyQueueException();
@@ -73,6 +174,15 @@ public final class ImmutableQueue<E> implements ImmutableCollection<E> {
         }
     }
 
+    
+    /**
+    * Look at the first element on the left.
+    *
+    * @return The leftmost data value
+    * @throws EmptyQueueException if there is no data stored
+    *
+    * @since 0.2.0
+    */
     public E peekLeft() {
         if (empty) {
             throw new EmptyQueueException();
@@ -86,7 +196,27 @@ public final class ImmutableQueue<E> implements ImmutableCollection<E> {
             return left.peekLeft();
         }
     }
+    
+    /**
+    * Alias for peekRight..
+    *
+    * @return The rightmost data value
+    * @throws EmptyQueueException if there is no data stored
+    *
+    * @see #peekRight
+    *
+    * @since 0.5.0
+    */
+    public E peek() { return peekRight(); }
 
+    /**
+    * Remove the rightmost element.
+    *
+    * @return a new ImmutableQueue with updated state
+    * @throws EmptyQueueException if there is no data stored
+    *
+    * @since 0.3.0
+    */
     public ImmutableQueue<E> popRight() {
         if (empty) {
             throw new EmptyQueueException();
@@ -111,7 +241,15 @@ public final class ImmutableQueue<E> implements ImmutableCollection<E> {
         return new ImmutableQueue<E> (right, mid, left, length - 1);
      }
 
-    public ImmutableQueue<E> popLeft() {
+    /**
+    * Remove the leftmost element.
+    *
+    * @return a new ImmutableQueue with updated state
+    * @throws EmptyQueueException if there is no data stored
+    *
+    * @since 0.3.0
+    */
+     public ImmutableQueue<E> popLeft() {
         if (empty) {
             throw new EmptyQueueException();
         }
@@ -133,32 +271,167 @@ public final class ImmutableQueue<E> implements ImmutableCollection<E> {
             left = left.popLeft();
         }
         return new ImmutableQueue<E> (right, mid, left, length - 1);
-     }
+    }
 
-    public Iterator<E> iterator() { return new InnutableQueueIterator; }
+    /**
+    * Alias for popRight.
+    *
+    * @return a new ImmutableQueue with updated state
+    * @throws EmptyQueueException if there is no data stored
+    *
+    * @see #popRight
+    *
+    * @since 0.3.0
+    */
+    public ImmutableQueue<E> pop() { return popRight(); }
 
+    /**
+    * Add a lot of items to the queue.
+    *
+    * Inserts in iteration order through calls to {@link #add}
+    *
+    * @param c An iterable object containingobjects to add.
+    * @return A new ImmutableQueue with updated state
+    *
+    * @see #add
+    *
+    * @since 0.5.0
+    */
+    public ImmutableQueue<E> addAll (Iterable<? extends E> c) {
+        ImmutableQueue<E> q = this;
+        for(E e: c) {
+            q = q.add(e);
+        }
+        return q;
+    }
+
+    /**
+    * Create an iterator to iterate over the items in the collection.
+    *
+    * @return an ImmutableQueueIterator
+    *
+    * @since 0.4.0
+    */
+    public Iterator<E> iterator() { return new ImmutableQueueIterator(this); }
+
+    /**
+    * An iterator for ImmutableQueues
+    *
+    * @author Accalia de Elementia <accalia.de.elementia@gmail.com>
+    * @version 1.0.0
+    */
     private final class ImmutableQueueIterator implements Iterator<E> {
-        private ImmutableQueue<E> queue
-        ImmutableQueueIterator(InnutableQueue<E> queue){
+        private ImmutableQueue<E> queue;
+
+        /**
+        * Store the collection to iterate.
+        * 
+        * @since 1.0.0
+        */
+        ImmutableQueueIterator(ImmutableQueue<E> queue){
             this.queue = queue;
         }
-        public boolean hasNext() { return ! queue.empty }
+
+        /**
+        * @return true if the queue still has data, false otherwise.
+        *
+        * @since 1.0.0
+        */
+        public boolean hasNext() { return ! queue.empty; }
+
+        /**
+        * @return the next data value in the queue.
+        * @throws EmptyQueueException if the queue has no data
+        *
+        * @since 1.0.0
+        */
         public E next() {
-            E e = queue.peekRight();
-            queue = queue.popRight();
+            E e = queue.peek();
+            queue = queue.pop();
             return e;
         }
+        /**
+        * Not supported.
+        *
+        * @throws UnsupportedOperationException unconditionally
+        *
+        * @since 1.0.0
+        */
         public void remove() { throw new UnsupportedOperationException(); }
     }
 
+    /**
+    * Interface for finite sized quelettes to be used to build a big queue.
+    *
+    * @author Accalia de Elementia <accalia.de.elementia@gmail.com>
+    * @version 1.0.0
+    */
     private interface Quelette<E> {
+        /**
+        * @return the capacity of the Quelette.
+        *
+        * @since 1.0.0
+        */
         public int size ();
+        /**
+        * @return True if the Quelette cannot be pushed to.
+        *
+        * @since 1.0.0
+        */
         public boolean isFull();
+        /**
+        * Look at the left value of the Quelette.
+        *
+        * @return The leftmost value in the quelette.
+        * @throws EmptyQueueException if has no data
+        *
+        * @since 1.0.0
+        */
         public E peekLeft();
+        /**
+        * Look at the right value of the Quelette
+        *
+        * @return The rightmost value in the Quelette
+        * @throws EmptyQueueException if has no data
+        *
+        * @since 1.0.0
+        */
         public E peekRight();
+        /**
+        * Push value to the left of the Quelette.
+        *
+        * @return A new Quelette with updated state.
+        * @throws EmptyQueueException if Quelette is full. This should be changed to better exception.
+        *
+        * @since 1.0.0
+        */
         public Quelette<E> pushLeft(E e);
+        /**
+        * Push falue to the right of the queue.
+        *
+        * @return A new Quelette with updated state.
+        * @throws EmptyQueueException if Quelette is full. This should be changed to better exception.
+        *
+        * @since 1.0.0
+        */
         public Quelette<E> pushRight(E e);
+        /**
+        * Remove leftmost value of the Quelette
+        *
+        * @return A new quelette with updated state.
+        * @throws EmptyQueueException if has no data.
+        *
+        * @since 1.0.0
+        */
         public Quelette<E> popLeft();
+        /**
+        * Remove rightmost value of the Quelette.
+        *
+        * @return A new Quelette with updated state.
+        * @throws EmptyQueueException if has no ata
+        *
+        * @since 1.0.0
+        */
         public Quelette<E> popRight();
     }
     private final class Zero implements Quelette<E> {
