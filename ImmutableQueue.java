@@ -3,6 +3,10 @@ import java.util.*;
 /**
 * An implementation of an Immutable Queue
 *
+* Inspired by work featured on Fabulous Adventures In Coding by Eric Lippert
+* published 2008.02.12
+* http://blogs.msdn.com/b/ericlippert/archive/2008/02/12/immutability-in-c-part-eleven-a-working-double-ended-queue.aspx
+*
 * @author Accalia de Elementia <accalia.de.elementia@gmail.com>
 *
 * @version 0.5.0
@@ -58,7 +62,7 @@ public final class ImmutableQueue<E> implements ImmutableCollection<E> {
         this.mid = mid;
         this.left = left;
         this.length = length;
-        empty = false;
+        empty = length == 0;
     }
 
     /**
@@ -90,14 +94,21 @@ public final class ImmutableQueue<E> implements ImmutableCollection<E> {
     public ImmutableQueue<E> pushRight(E e) {
         Quelette<E> right = this.right;
         ImmutableQueue<Quelette<E>> mid = this.mid;
-        Quelette<E> lleft = this.left;
+        Quelette<E> left = this.left;
         if (right.isFull()) {
-            if (null == mid) {
-                //TODO: make sure that the left side is also full before pushing down into the mid
-                mid = new ImmutableQueue<Quelette<E>>();
+            if (null != mid) {
+                // Mid already used
+                mid = mid.pushRight(right);
+                right = new One(e);
+            } else if (left.isFull()) {
+                // no mid, and left is full too
+                mid = new ImmutableQueue<Quelette<E>>().pushRight(right);
+                right = new One(e);
+            } else {
+                // no mid, and left has room
+                left = left.pushRight(right.peekLeft());
+                right = right.popLeft().pushRight(e);
             }
-            mid = mid.pushRight(right);
-            right = new One(e);
         } else {
             right = right.pushRight(e);
         }
@@ -117,11 +128,16 @@ public final class ImmutableQueue<E> implements ImmutableCollection<E> {
         ImmutableQueue<Quelette<E>> mid = this.mid;
         Quelette<E> left = this.left;
         if (left.isFull()) {
-            if (null == mid) {
-                mid = new ImmutableQueue<Quelette<E>>();
+            if (null != mid) {
+                mid = mid.pushLeft(left);
+                left = new One(e);
+            } else if (right.isFull()) {
+                mid = new ImmutableQueue<Quelette<E>>().pushLeft(left);
+                left = new One(e);
+            } else {
+                right = right.pushLeft(left.peekRight());
+                left = left.popRight().pushLeft(e);
             }
-            mid = mid.pushLeft(left);
-            left = new One(e);
         } else {
             left = left.pushLeft(e);
         }
@@ -198,7 +214,7 @@ public final class ImmutableQueue<E> implements ImmutableCollection<E> {
     }
     
     /**
-    * Alias for peekRight..
+    * Alias for peekRight.
     *
     * @return The rightmost data value
     * @throws EmptyQueueException if there is no data stored
@@ -306,6 +322,37 @@ public final class ImmutableQueue<E> implements ImmutableCollection<E> {
     }
 
     /**
+    * Create an array of items to be found in the ImmutableQueue.
+    *
+    * @return And array of elements to be found in the ImmutableQueue
+    *
+    * @since 0.6.0
+    */
+    public Object[] toArray() {
+        return toArray(new Object[length]);
+    }
+
+     /**
+    * Create an array of items to be found in the ImmutableQueue.
+    *
+    * @return And array of elements to be found in the ImmutableQueue
+    *
+    * @since 0.6.0
+    */
+    @SuppressWarnings("unchecked")
+    public <T> T[] toArray(T[] a) {
+        if (a.length < length) {
+            a = (T[]) java.lang.reflect.Array.newInstance(a.getClass().getComponentType(), length);
+        }
+        int i = 0;
+        for (E e: this) {
+            a[i] = (T) e;
+            i += 1;
+        }
+        return a;
+    }
+
+    /**
     * Create an iterator to iterate over the items in the collection.
     *
     * @return an ImmutableQueueIterator
@@ -346,6 +393,9 @@ public final class ImmutableQueue<E> implements ImmutableCollection<E> {
         * @since 1.0.0
         */
         public E next() {
+            if (queue.empty) {
+                throw new NoSuchElementException();
+            }
             E e = queue.peek();
             queue = queue.pop();
             return e;

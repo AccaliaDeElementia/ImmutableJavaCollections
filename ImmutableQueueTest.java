@@ -67,7 +67,7 @@ public class ImmutableQueueTest {
     }
     
     @Test
-    public void PushRightUntilFilloverIntoMiddle () {
+    public void PushRightUntilFilloverIntoLeft () {
         A[] as = new A[5];
         dasQ = Empty;
         for( int i = 0; i < as.length; i += 1) {
@@ -78,7 +78,18 @@ public class ImmutableQueueTest {
     }
 
     @Test
-    public void PushLeftUntilFilloverIntoMiddle () {
+    public void PushRightUntilFilloverIntoMiddle () {
+        A[] as = new A[9];
+        dasQ = Empty;
+        for( int i = 0; i < as.length; i += 1) {
+            as[i] = new A();
+            dasQ = dasQ.pushRight(as[i]);
+        }
+        Assert.assertEquals(9, dasQ.length);
+    }
+
+    @Test
+    public void PushLeftUntilFilloverIntoRight () {
         A[] as = new A[5];
         dasQ = Empty;
         for( int i = 0; i < as.length; i += 1) {
@@ -86,6 +97,17 @@ public class ImmutableQueueTest {
             dasQ = dasQ.pushLeft(as[i]);
         }
         Assert.assertEquals(5, dasQ.length);
+    }
+    
+    @Test
+    public void PushLeftUntilFilloverIntoMiddle () {
+        A[] as = new A[9];
+        dasQ = Empty;
+        for( int i = 0; i < as.length; i += 1) {
+            as[i] = new A();
+            dasQ = dasQ.pushLeft(as[i]);
+        }
+        Assert.assertEquals(9, dasQ.length);
     }
 
     @Test
@@ -140,7 +162,7 @@ public class ImmutableQueueTest {
         ImmutableQueue<Integer> q = new ImmutableQueue<Integer>();
         int limit = 4;
         for (int i = 0; i < limit; i += 1) {
-            q.push(i);
+            q = q.push(i);
         }
         int expected = 0;
         for (int actual: q) {
@@ -153,7 +175,7 @@ public class ImmutableQueueTest {
         ImmutableQueue<Integer> q = new ImmutableQueue<Integer>();
         int limit = 24;
         for (int i = 0; i < limit; i += 1) {
-            q.push(i);
+            q = q.push(i);
         }
         int expected = 0;
         for (int actual: q) {
@@ -166,7 +188,7 @@ public class ImmutableQueueTest {
         ImmutableQueue<Integer> q = new ImmutableQueue<Integer>();
         int limit = 255;
         for (int i = 0; i < limit; i += 1) {
-            q.push(i);
+            q = q.push(i);
         }
         int expected = 0;
         for (int actual: q) {
@@ -179,12 +201,29 @@ public class ImmutableQueueTest {
         ImmutableQueue<Integer> q = new ImmutableQueue<Integer>();
         int limit = 1000000;
         for (int i = 0; i < limit; i += 1) {
-            q.push(i);
+            q = q.push(i);
         }
         int expected = 0;
         for (int actual: q) {
             Assert.assertEquals(expected, actual);
             expected += 1;
         }
+    }
+    @Test
+    public void ToArrayForwards () {
+        ImmutableQueue<Integer> q = new ImmutableQueue<Integer>();
+        Integer[] a = new Integer[1000000];
+        Object[] b;
+        for (int i = 0; i < a.length; i += 1) {
+            a[i]=i;
+            q = q.push(i);
+        }
+        Assert.assertEquals(a.length, q.length);
+        b = q.toArray();
+        Assert.assertEquals(a.length, b.length);
+        for (int i = 0; i < a.length; i += 1) {
+            Assert.assertEquals(a[i], b[i]);
+        }
+
     }
 }
